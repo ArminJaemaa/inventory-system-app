@@ -1,6 +1,6 @@
 package com.arminJaemaa.inventory_system.repository;
 
-import com.arminJaemaa.inventory_system.model.Warehouse;
+import com.arminJaemaa.inventory_system.entity.Warehouse;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;

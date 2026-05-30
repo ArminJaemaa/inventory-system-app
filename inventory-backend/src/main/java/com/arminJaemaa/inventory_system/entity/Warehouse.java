@@ -1,4 +1,4 @@
-package com.arminJaemaa.inventory_system.model;
+package com.arminJaemaa.inventory_system.entity;
 
 import jakarta.persistence.*;
 import lombok.*;

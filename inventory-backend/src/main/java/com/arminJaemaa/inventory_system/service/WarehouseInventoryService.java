@@ -6,6 +6,7 @@ import com.arminJaemaa.inventory_system.entity.Warehouse;
 import com.arminJaemaa.inventory_system.repository.InventoryRepository;
 import com.arminJaemaa.inventory_system.repository.ProductRepository;
 import com.arminJaemaa.inventory_system.repository.WarehouseRepository;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -22,10 +23,10 @@ public class WarehouseInventoryService {
     public void addStock(Long warehouseId, Long productId, Integer quantity) {
 
         Warehouse warehouse = warehouseRepository.findById(warehouseId)
-                .orElseThrow(() -> new RuntimeException("Warehouse not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Warehouse not found"));
 
         Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new RuntimeException("Product not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Product not found"));
 
         Inventory inventory = inventoryRepository.findByWarehouseIdAndProductId(warehouseId, productId)
                 .orElseGet(() -> createNewInventory(warehouse,product));

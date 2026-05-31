@@ -25,5 +25,15 @@ public class Inventory extends BaseEntity {
     private Product product;
 
     @Column(nullable = false)
-    private int quantity;
+    private Integer quantity;
+
+    public void addQuantity(Integer amount) {
+        if (amount == null || amount < 0) {
+            throw new IllegalArgumentException("amount must be positive");
+        }
+        if (this.quantity == null) {
+            this.quantity = 0;
+        }
+        this.quantity += amount;
+    }
 }

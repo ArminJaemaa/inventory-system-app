@@ -7,6 +7,7 @@ import com.arminJaemaa.inventory_system.exception.InsufficientStockException;
 import com.arminJaemaa.inventory_system.repository.InventoryRepository;
 import com.arminJaemaa.inventory_system.repository.ProductRepository;
 import com.arminJaemaa.inventory_system.repository.WarehouseRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -35,22 +36,20 @@ public class inventoryServiceTest {
     @InjectMocks
     private WarehouseInventoryService warehouseInventoryService;
 
+    private Warehouse mockWarehouse;
+    private Product mockProduct;
+
+    @BeforeEach
+    void setUp() {
+        mockWarehouse = Warehouse.builder().id(1L).name("Hub").build();
+        mockProduct = Product.builder().id(2L).sku("IPHONE").build();
+    }
+
     Long warehouseId = 1L;
     Long productId = 2L;
 
     @Test
     void addStockTest() {
-
-        Warehouse mockWarehouse = Warehouse.builder()
-                .id(warehouseId)
-                .name("Tallinn Main Hub")
-                .build();
-
-        Product mockProduct = Product.builder()
-                .id(productId)
-                .name("iphone 16")
-                .sku("IPHONE-16")
-                .build();
 
         Inventory mockExistingInventory = Inventory.builder()
                 .warehouse(mockWarehouse)
@@ -73,17 +72,6 @@ public class inventoryServiceTest {
     @Test
     void removeStockTest_shouldRemoveStockGivenAmount() {
 
-        Warehouse mockWarehouse = Warehouse.builder()
-                .id(warehouseId)
-                .name("Tallinn Main Hub")
-                .build();
-
-        Product mockProduct = Product.builder()
-                .id(productId)
-                .name("iphone 16")
-                .sku("IPHONE-16")
-                .build();
-
         Inventory mockExistingInventory = Inventory.builder()
                 .warehouse(mockWarehouse)
                 .product(mockProduct)
@@ -103,16 +91,6 @@ public class inventoryServiceTest {
 
     @Test
     void removeStockTest_shouldNotRemoveStockGivenAmount() {
-        Warehouse mockWarehouse = Warehouse.builder()
-                .id(warehouseId)
-                .name("Tallinn Main Hub")
-                .build();
-
-        Product mockProduct = Product.builder()
-                .id(productId)
-                .name("iphone 16")
-                .sku("IPHONE-16")
-                .build();
 
         Inventory mockExistingInventory = Inventory.builder()
                 .warehouse(mockWarehouse)

@@ -51,6 +51,12 @@ public class WarehouseInventoryService {
         inventoryRepository.save(inventory);
     }
 
+    @Transactional
+    public void transferStock(Long sourceWarehouseId, Long destWarehouseId, Long productId, Integer quantity) {
+        removeStock(sourceWarehouseId, productId, quantity);
+        addStock(destWarehouseId, productId, quantity);
+    }
+
     private Inventory createNewInventory(Warehouse warehouse, Product product) {
         return Inventory.builder()
                 .warehouse(warehouse)

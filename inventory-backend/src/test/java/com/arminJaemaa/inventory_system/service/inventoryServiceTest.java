@@ -33,10 +33,11 @@ public class inventoryServiceTest {
     @InjectMocks
     private WarehouseInventoryService warehouseInventoryService;
 
+    Long warehouseId = 1L;
+    Long productId = 2L;
+
     @Test
     void addStockTest() {
-        Long warehouseId = 1L;
-        Long productId = 2L;
 
         Warehouse mockWarehouse = Warehouse.builder()
                 .id(warehouseId)
@@ -64,6 +65,37 @@ public class inventoryServiceTest {
         warehouseInventoryService.addStock(warehouseId, productId, 50);
 
         assertEquals(150, mockExistingInventory.getQuantity());
+        verify(inventoryRepository).save(mockExistingInventory);
+    }
+
+    @Test
+    void removeStockTest_shouldRemoveStockGivenAmount() {
+
+        Warehouse mockWarehouse = Warehouse.builder()
+                .id(warehouseId)
+                .name("Tallinn Main Hub")
+                .build();
+
+        Product mockProduct = Product.builder()
+                .id(productId)
+                .name("iphone 16")
+                .sku("IPHONE-16")
+                .build();
+
+        Inventory mockExistingInventory = Inventory.builder()
+                .warehouse(mockWarehouse)
+                .product(mockProduct)
+                .quantity(100)
+                .build();
+
+        when(warehouseRepository.findById(warehouseId)).thenReturn(Optional.of(mockWarehouse));
+        when(productRepository.findById(productId)).thenReturn(Optional.of(mockProduct));
+
+        when(inventoryRepository.findByWarehouseIdAndProductId(warehouseId, productId))
+                .thenReturn(Optional.of(mockExistingInventory));
+
+        warehouseInventoryService.removeStock(warehouseId,productId, 50);
+        assertEquals(50, mockExistingInventory.getQuantity());
         verify(inventoryRepository).save(mockExistingInventory);
     }
 }

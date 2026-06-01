@@ -21,8 +21,7 @@ public class WarehouseInventoryService {
     private final ProductRepository productRepository;
     private final InventoryRepository inventoryRepository;
 
-    @Transactional
-    public void addStock(Long warehouseId, Long productId, Integer quantity) {
+    private void performAddStock(Long warehouseId, Long productId, Integer quantity) {
 
         Warehouse warehouse = findWarehouseByWarehouseId(warehouseId);
         Product product = findProductByProductId(productId);
@@ -34,8 +33,7 @@ public class WarehouseInventoryService {
         inventoryRepository.save(inventory);
     }
 
-    @Transactional
-    public void removeStock(Long warehouseId, Long productId, Integer quantity) {
+    private void performRemoveStock(Long warehouseId, Long productId, Integer quantity) {
 
         Warehouse warehouse = findWarehouseByWarehouseId(warehouseId);
         Product product = findProductByProductId(productId);
@@ -48,9 +46,19 @@ public class WarehouseInventoryService {
     }
 
     @Transactional
+    public void addStock(Long warehouseId, Long productId, Integer quantity) {
+        performAddStock(warehouseId, productId, quantity);
+    }
+
+    @Transactional
+    public void removeStock(Long warehouseId, Long productId, Integer quantity) {
+        performRemoveStock(warehouseId, productId, quantity);
+    }
+
+    @Transactional
     public void transferStock(Long sourceWarehouseId, Long destWarehouseId, Long productId, Integer quantity) {
-        removeStock(sourceWarehouseId, productId, quantity);
-        addStock(destWarehouseId, productId, quantity);
+        performRemoveStock(sourceWarehouseId, productId, quantity);
+        performAddStock(destWarehouseId, productId, quantity);
     }
 
     private Inventory createNewInventory(Warehouse warehouse, Product product) {

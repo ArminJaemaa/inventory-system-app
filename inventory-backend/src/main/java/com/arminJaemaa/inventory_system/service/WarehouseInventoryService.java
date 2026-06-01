@@ -11,6 +11,8 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 public class WarehouseInventoryService {
@@ -22,11 +24,8 @@ public class WarehouseInventoryService {
     @Transactional
     public void addStock(Long warehouseId, Long productId, Integer quantity) {
 
-        Warehouse warehouse = warehouseRepository.findById(warehouseId)
-                .orElseThrow(() -> new EntityNotFoundException("Warehouse not found"));
-
-        Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new EntityNotFoundException("Product not found"));
+        Warehouse warehouse = findWarehouseByWarehouseId(warehouseId);
+        Product product = findProductByProductId(productId);
 
         Inventory inventory = inventoryRepository.findByWarehouseIdAndProductId(warehouseId, productId)
                 .orElseGet(() -> createNewInventory(warehouse,product));
@@ -38,11 +37,8 @@ public class WarehouseInventoryService {
     @Transactional
     public void removeStock(Long warehouseId, Long productId, Integer quantity) {
 
-        Warehouse warehouse = warehouseRepository.findById(warehouseId)
-                .orElseThrow(() -> new EntityNotFoundException("Warehouse not found"));
-
-        Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new EntityNotFoundException("Product not found"));
+        Warehouse warehouse = findWarehouseByWarehouseId(warehouseId);
+        Product product = findProductByProductId(productId);
 
         Inventory inventory = inventoryRepository.findByWarehouseIdAndProductId(warehouseId, productId)
                 .orElseThrow(() -> new EntityNotFoundException("Inventory not found"));
@@ -63,5 +59,23 @@ public class WarehouseInventoryService {
                 .product(product)
                 .quantity(0)
                 .build();
+    }
+
+    private Warehouse findWarehouseByWarehouseId(Long warehouseId) {
+        return findOrThrow(
+                warehouseRepository.findById(warehouseId),
+                "Warehouse not found"
+        );
+    }
+
+    private Product findProductByProductId(Long productId) {
+        return findOrThrow(
+                productRepository.findById(productId),
+                "Product not found"
+        );
+    }
+
+    private <T> T findOrThrow(Optional<T> optional, String errorMessage) {
+        return optional.orElseThrow(() -> new EntityNotFoundException(errorMessage));
     }
 }

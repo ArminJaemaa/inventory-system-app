@@ -7,9 +7,9 @@ import com.arminJaemaa.inventory_system.exception.EntityNotFoundException;
 import com.arminJaemaa.inventory_system.repository.InventoryRepository;
 import com.arminJaemaa.inventory_system.repository.ProductRepository;
 import com.arminJaemaa.inventory_system.repository.WarehouseRepository;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 

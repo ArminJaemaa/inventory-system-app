@@ -15,6 +15,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -97,5 +98,32 @@ public class inventoryServiceTest {
         warehouseInventoryService.removeStock(warehouseId,productId, 50);
         assertEquals(50, mockExistingInventory.getQuantity());
         verify(inventoryRepository).save(mockExistingInventory);
+    }
+
+    @Test
+    void removeStockTest_shouldNotRemoveStockGivenAmount() {
+        Warehouse mockWarehouse = Warehouse.builder()
+                .id(warehouseId)
+                .name("Tallinn Main Hub")
+                .build();
+
+        Product mockProduct = Product.builder()
+                .id(productId)
+                .name("iphone 16")
+                .sku("IPHONE-16")
+                .build();
+
+        Inventory mockExistingInventory = Inventory.builder()
+                .warehouse(mockWarehouse)
+                .product(mockProduct)
+                .quantity(20)
+                .build();
+
+        when(warehouseRepository.findById(warehouseId)).thenReturn(Optional.of(mockWarehouse));
+        when(productRepository.findById(productId)).thenReturn(Optional.of(mockProduct));
+        when(inventoryRepository.findByWarehouseIdAndProductId(warehouseId, productId))
+                .thenReturn(Optional.of(mockExistingInventory));
+
+        assertThrows(InsufficientStockException.class, ()-> warehouseInventoryService.removeStock(warehouseId, productId, 50));
     }
 }

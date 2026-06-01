@@ -35,6 +35,22 @@ public class WarehouseInventoryService {
         inventoryRepository.save(inventory);
     }
 
+    @Transactional
+    public void removeStock(Long warehouseId, Long productId, Integer quantity) {
+
+        Warehouse warehouse = warehouseRepository.findById(warehouseId)
+                .orElseThrow(() -> new EntityNotFoundException("Warehouse not found"));
+
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new EntityNotFoundException("Product not found"));
+
+        Inventory inventory = inventoryRepository.findByWarehouseIdAndProductId(warehouseId, productId)
+                .orElseThrow(() -> new EntityNotFoundException("Inventory not found"));
+
+        inventory.subtractQuantity(quantity);
+        inventoryRepository.save(inventory);
+    }
+
     private Inventory createNewInventory(Warehouse warehouse, Product product) {
         return Inventory.builder()
                 .warehouse(warehouse)

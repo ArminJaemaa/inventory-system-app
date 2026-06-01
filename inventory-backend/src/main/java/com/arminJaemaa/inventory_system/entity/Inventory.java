@@ -1,5 +1,6 @@
 package com.arminJaemaa.inventory_system.entity;
 
+import com.arminJaemaa.inventory_system.exception.InsufficientStockException;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -31,9 +32,20 @@ public class Inventory extends BaseEntity {
         if (amount == null || amount < 0) {
             throw new IllegalArgumentException("amount must be positive");
         }
-        if (this.quantity == null) {
+        if (this.quantity == null) { //TODO: dead code. can remove safely
             this.quantity = 0;
         }
         this.quantity += amount;
+    }
+
+    public void subtractQuantity(Integer amount) {
+        if (amount == null || amount < 0) {
+            throw new IllegalArgumentException("amount must be positive");
+        }
+        if (this.quantity < amount) {
+            throw new InsufficientStockException("Inventory only has " + this.quantity + "available");
+        }
+
+        this.quantity -= amount;
     }
 }

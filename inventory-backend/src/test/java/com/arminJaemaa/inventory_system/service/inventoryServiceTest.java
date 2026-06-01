@@ -3,6 +3,7 @@ package com.arminJaemaa.inventory_system.service;
 import com.arminJaemaa.inventory_system.entity.Inventory;
 import com.arminJaemaa.inventory_system.entity.Product;
 import com.arminJaemaa.inventory_system.entity.Warehouse;
+import com.arminJaemaa.inventory_system.exception.InsufficientStockException;
 import com.arminJaemaa.inventory_system.repository.InventoryRepository;
 import com.arminJaemaa.inventory_system.repository.ProductRepository;
 import com.arminJaemaa.inventory_system.repository.WarehouseRepository;

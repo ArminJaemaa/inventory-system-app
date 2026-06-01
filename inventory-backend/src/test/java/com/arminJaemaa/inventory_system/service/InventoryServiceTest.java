@@ -18,11 +18,10 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class inventoryServiceTest {
+public class InventoryServiceTest {
 
     @Mock
     private WarehouseRepository warehouseRepository;
@@ -39,14 +38,14 @@ public class inventoryServiceTest {
     private Warehouse mockWarehouse;
     private Product mockProduct;
 
-    @BeforeEach
-    void setUp() {
-        mockWarehouse = Warehouse.builder().id(1L).name("Hub").build();
-        mockProduct = Product.builder().id(2L).sku("IPHONE").build();
-    }
-
     Long warehouseId = 1L;
     Long productId = 2L;
+
+    @BeforeEach
+    void setUp() {
+        mockWarehouse = Warehouse.builder().id(warehouseId).name("Hub").build();
+        mockProduct = Product.builder().id(productId).sku("IPHONE").build();
+    }
 
     @Test
     void addStockTest() {
@@ -104,5 +103,43 @@ public class inventoryServiceTest {
                 .thenReturn(Optional.of(mockExistingInventory));
 
         assertThrows(InsufficientStockException.class, ()-> warehouseInventoryService.removeStock(warehouseId, productId, 50));
+    }
+
+    @Test
+    void transferStockTest_shouldTransferStockGivenAmountToDifferentWarehouse() {
+
+        Long destWarehouseId = 10L;
+        Integer transferQuantity = 50;
+
+        Warehouse destinationWarehouse = Warehouse.builder().id(destWarehouseId).name("destination-warehouse").build();
+
+        Inventory mockExistingSourceInventory = Inventory.builder()
+                .warehouse(mockWarehouse)
+                .product(mockProduct)
+                .quantity(100)
+                .build();
+
+        Inventory mockDestinationInventory = Inventory.builder()
+                .warehouse(destinationWarehouse)
+                .product(mockProduct)
+                .quantity(50)
+                .build();
+
+        when(warehouseRepository.findById(warehouseId)).thenReturn(Optional.of(mockWarehouse));
+        when(warehouseRepository.findById(destWarehouseId)).thenReturn(Optional.of(destinationWarehouse));
+        when(productRepository.findById(productId)).thenReturn(Optional.of(mockProduct));
+
+        when(inventoryRepository.findByWarehouseIdAndProductId(warehouseId, productId))
+                .thenReturn(Optional.of(mockExistingSourceInventory));
+        when(inventoryRepository.findByWarehouseIdAndProductId(destWarehouseId, productId))
+                .thenReturn(Optional.of(mockDestinationInventory));
+
+        warehouseInventoryService.transferStock(warehouseId, destWarehouseId, productId, transferQuantity);
+
+        assertEquals(50, mockExistingSourceInventory.getQuantity());
+        assertEquals(100, mockDestinationInventory.getQuantity());
+
+        verify(inventoryRepository).save(mockExistingSourceInventory);
+        verify(inventoryRepository).save(mockDestinationInventory);
     }
 }

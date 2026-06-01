@@ -142,4 +142,47 @@ public class InventoryServiceTest {
         verify(inventoryRepository).save(mockExistingSourceInventory);
         verify(inventoryRepository).save(mockDestinationInventory);
     }
+
+    @Test
+    void transferStockTest_shouldRollbackIfAddStockFails() {
+
+        Long destWarehouseId = 10L;
+        Integer transferQuantity = 30;
+
+        Warehouse destinationWarehouse = Warehouse.builder().id(destWarehouseId).name("destination-warehouse").build();
+
+        Inventory mockExistingSourceInventory = Inventory.builder()
+                .warehouse(mockWarehouse)
+                .product(mockProduct)
+                .quantity(50)
+                .build();
+
+        Inventory mockDestinationInventory = Inventory.builder()
+                .warehouse(destinationWarehouse)
+                .product(mockProduct)
+                .quantity(50)
+                .build();
+
+        when(warehouseRepository.findById(warehouseId)).thenReturn(Optional.of(mockWarehouse));
+        when(warehouseRepository.findById(destWarehouseId)).thenReturn(Optional.of(destinationWarehouse));
+        when(productRepository.findById(productId)).thenReturn(Optional.of(mockProduct));
+
+        when(inventoryRepository.findByWarehouseIdAndProductId(warehouseId, productId))
+                .thenReturn(Optional.of(mockExistingSourceInventory));
+        when(inventoryRepository.findByWarehouseIdAndProductId(destWarehouseId, productId))
+                .thenReturn(Optional.of(mockDestinationInventory));
+
+        when(inventoryRepository.save(any()))
+                .thenReturn(mockExistingSourceInventory)          // first call succeeds
+                .thenThrow(new RuntimeException("DB error on destination"));
+
+        assertThrows(RuntimeException.class, () ->
+                warehouseInventoryService.transferStock(warehouseId, destWarehouseId, productId, transferQuantity)
+        );
+
+        assertEquals(50, mockExistingSourceInventory.getQuantity());
+
+        verify(inventoryRepository).save(mockExistingSourceInventory);
+        verify(inventoryRepository).save(mockDestinationInventory);
+    }
 }
